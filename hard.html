@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Hell Tic-Tac-Toe 🔥</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
+
+        body {
+            font-family: 'Nosifer', sans-serif;
+            text-align: center;
+            background: black;
+            color: red;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-shadow: 0px 0px 15px red;
+            animation: flicker 1s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 8px;
+            margin: 20px auto;
+            width: 370px;
+        }
+
+        .cell {
+            width: 120px;
+            height: 120px;
+            background: #330000;
+            border-radius: 10px;
+            font-size: 3em;
+            color: #ff4500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cell:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 10px red;
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        #timer {
+            font-size: 1.5em;
+            color: yellow;
+            margin-top: 10px;
+        }
+
+        #home, #restart {
+            background: darkred;
+            color: white;
+            padding: 15px;
+            font-size: 1.5em;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #home:hover, #restart:hover {
+            background: red;
+            transform: scale(1.1);
+        }
+
+        #message {
+            font-size: 2em;
+            margin-top: 20px;
+            text-shadow: 0px 0px 15px red;
+        }
+
+        #schoolMessage {
+            font-size: 2em;
+            margin-top: 20px;
+            text-shadow: 0px 0px 15px yellow;
+            font-weight: bold;
+            color: white;
+            opacity: 0;
+            animation: popUpGlow 2s forwards;
+        }
+
+        @keyframes popUpGlow {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>🔥 Hell Tic-Tac-Toe 🔥</h1>
+
+    <div id="timer">AI moves in: <span id="countdown">3</span> seconds</div>
+
+    <div class="board" id="board">
+        <div class="cell" id="0"></div>
+        <div class="cell" id="1"></div>
+        <div class="cell" id="2"></div>
+        <div class="cell" id="3"></div>
+        <div class="cell" id="4"></div>
+        <div class="cell" id="5"></div>
+        <div class="cell" id="6"></div>
+        <div class="cell" id="7"></div>
+        <div class="cell" id="8"></div>
+    </div>
+
+    <div id="message"></div>
+
+    <div id="schoolMessage">JANAK MODEL SECONDARY SCHOOL || SCIENCE EXHIBITION-2081</div>
+
+    <button id="home" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button id="restart" onclick="restartGame()">🔄 Restart Game</button>
+
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const timer = document.getElementById('countdown');
+        const message = document.getElementById('message');
+        const schoolMessage = document.getElementById('schoolMessage');
+        const restartButton = document.getElementById('restart');
+
+        let gameOver = false;
+        let boardState = ["", "", "", "", "", "", "", "", ""];
+
+        cells.forEach(cell => cell.addEventListener("click", playerMove));
+
+        function playerMove(event) {
+            if (gameOver) return;
+            let cell = event.target;
+            let index = cell.id;
+
+            if (boardState[index] === "") {
+                boardState[index] = "X";
+                cell.innerText = "X";
+                cell.classList.add("taken");
+
+                // After the player move, check if the center is empty
+                setTimeout(() => aiMove(), 3000);
+                disableBoard();
+                startCountdown(3);
+            }
+        }
+
+        function aiMove() {
+            if (gameOver) return;
+
+            // Check if the center is empty
+            if (boardState[4] === "") {
+                // AI places its move in the center
+                boardState[4] = "O";
+                cells[4].innerText = "O";
+                cells[4].classList.add("taken");
+
+                if (checkWin("O")) {
+                    message.innerText = "🔥 AI Wins! 🔥";
+                    gameOver = true;
+                    restartButton.style.display = 'block';
+                    return;
+                }
+
+                disableBoard();
+                setTimeout(() => {
+                    enableBoard();
+                }, 500);
+                return;
+            }
+
+            // AI will now make moves to ensure it always wins or forces a draw
+            let bestMove = findBestMove(boardState);
+            boardState[bestMove] = "O";
+            cells[bestMove].innerText = "O";
+            cells[bestMove].classList.add("taken");
+
+            if (checkWin("O")) {
+                message.innerText = "🔥 AI Wins! 🔥";
+                gameOver = true;
+                restartButton.style.display = 'block';
+                return;
+            }
+
+            if (boardState.every(cell => cell !== "")) {
+                message.innerText = "😈 Game Got Tied 😈";
+                gameOver = true;
+                restartButton.style.display = 'block';
+                return;
+            }
+
+            enableBoard();
+        }
+
+        function disableBoard() {
+            board.classList.add("disabled");
+        }
+
+        function enableBoard() {
+            board.classList.remove("disabled");
+        }
+
+        function startCountdown(seconds) {
+            let timeLeft = seconds;
+            timer.innerText = timeLeft;
+            let countdownInterval = setInterval(() => {
+                timeLeft--;
+                timer.innerText = timeLeft;
+                if (timeLeft <= 0) clearInterval(countdownInterval);
+            }, 1000);
+        }
+
+        function restartGame() {
+            boardState = ["", "", "", "", "", "", "", "", ""];
+            gameOver = false;
+            message.innerText = "";
+            restartButton.style.display = 'none';
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.classList.remove("taken");
+            });
+            startNewGame();
+        }
+
+        function startNewGame() {
+            // Reset any other UI or states
+            setTimeout(() => {
+                // Allow user to take the first move
+                enableBoard();
+            }, 100);
+        }
+
+        function findBestMove(board) {
+            let winningCombinations = [
+                [0,1,2], [3,4,5], [6,7,8], 
+                [0,3,6], [1,4,7], [2,5,8], 
+                [0,4,8], [2,4,6]
+            ];
+
+            // Check if AI can win in the next move
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === "") {
+                    board[i] = "O";
+                    if (checkWin("O")) {
+                        board[i] = "";
+                        return i;
+                    }
+                    board[i] = "";
+                }
+            }
+
+            // Check if player can win and block them
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === "") {
+                    board[i] = "X";
+                    if (checkWin("X")) {
+                        board[i] = "";
+                        return i;
+                    }
+                    board[i] = "";
+                }
+            }
+
+            // Otherwise, return random position to continue blocking and setting up win
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === "") return i;
+            }
+        }
+
+        function checkWin(player) {
+            return [
+                [0,1,2], [3,4,5], [6,7,8], 
+                [0,3,6], [1,4,7], [2,5,8], 
+                [0,4,8], [2,4,6]
+            ].some(combination => combination.every(index => boardState[index] === player));
+        }
+    </script>
+</body>
+</html>
