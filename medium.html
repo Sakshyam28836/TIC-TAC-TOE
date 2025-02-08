@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medium Level Tic Tac Toe (Win or Defend)</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+      margin-bottom: 10px;
+    }
+    #message {
+      text-align: center;
+      font-size: 1.5em;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #ffebcd;
+      border-radius: 5px;
+      max-width: 400px;
+      border: 2px solid #8b4513;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    #timer {
+      text-align: center;
+      font-size: 1.2em;
+      margin: 10px auto;
+      padding: 8px;
+      background-color: #dff0d8;
+      border-radius: 5px;
+      max-width: 400px;
+      border: 2px solid #4cae4c;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    table {
+      border-collapse: collapse;
+      margin: auto;
+      background-color: #fff;
+      border: 2px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    td {
+      width: 100px;
+      height: 100px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 2em;
+      border: 1px solid #333;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    td:hover:not(.disabled) {
+      background-color: #cce5ff;
+    }
+    td.disabled {
+      cursor: default;
+      background-color: #eee;
+    }
+    #home-btn {
+      display: block;
+      width: 150px;
+      padding: 10px;
+      margin: 30px auto;
+      background-color: #4cae4c;
+      color: white;
+      text-align: center;
+      font-size: 1.2em;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+    }
+    #home-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Medium Level Tic Tac Toe (Win or Defend)</h1>
+  <div id="message">Your Turn!</div>
+  <table id="board">
+    <tr>
+      <td data-index="0"></td>
+      <td data-index="1"></td>
+      <td data-index="2"></td>
+    </tr>
+    <tr>
+      <td data-index="3"></td>
+      <td data-index="4"></td>
+      <td data-index="5"></td>
+    </tr>
+    <tr>
+      <td data-index="6"></td>
+      <td data-index="7"></td>
+      <td data-index="8"></td>
+    </tr>
+  </table>
+  <div id="timer"></div>
+
+  <!-- Home Button -->
+  <a id="home-btn" href="index.html">Home</a>
+
+  <script>
+    // Game variables
+    const boardElement = document.getElementById('board');
+    const messageElement = document.getElementById('message');
+    const timerElement = document.getElementById('timer');
+    
+    // The board array: empty cells are '', 'X' for the player, and 'O' for the AI.
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+    let aiTimerInterval = null; // used to clear the timer if needed
+
+    // Winning combinations (rows, columns, diagonals)
+    const winCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    // Check if the given symbol wins
+    function checkWin(symbol) {
+      return winCombos.some(combo => combo.every(index => board[index] === symbol));
+    }
+
+    // Check if the board is full (tie game)
+    function checkTie() {
+      return board.every(cell => cell !== '');
+    }
+
+    // Disable the board (e.g., during AI turn or after game over)
+    function disableBoard() {
+      gameActive = false;
+      const cells = boardElement.getElementsByTagName('td');
+      for (let cell of cells) {
+        cell.classList.add('disabled');
+      }
+    }
+
+    // Enable the board for empty cells
+    function enableBoard() {
+      gameActive = true;
+      const cells = boardElement.getElementsByTagName('td');
+      for (let cell of cells) {
+        if (cell.textContent === '') {
+          cell.classList.remove('disabled');
+        }
+      }
+    }
+
+    // Start a 3-second countdown timer before the AI makes its move.
+    function startAITimer() {
+      let timerCount = 3;
+      timerElement.textContent = `AI will move in ${timerCount} seconds...`;
+      aiTimerInterval = setInterval(() => {
+        timerCount--;
+        if (timerCount > 0) {
+          timerElement.textContent = `AI will move in ${timerCount} seconds...`;
+        } else {
+          clearInterval(aiTimerInterval);
+          timerElement.textContent = "";
+          aiMove();
+        }
+      }, 1000);
+    }
+
+    // Handle player's move when clicking a cell.
+    function playerMove(index, cell) {
+      if (!gameActive || board[index] !== '') return;
+      
+      // Mark player's move.
+      board[index] = 'X';
+      cell.textContent = 'X';
+      cell.classList.add('disabled');
+
+      // Check if the player wins.
+      if (checkWin('X')) {
+        messageElement.textContent = "You won!";
+        disableBoard();
+        return;
+      }
+
+      // Check for a tie.
+      if (checkTie()) {
+        messageElement.textContent = "Match got tied!";
+        disableBoard();
+        return;
+      }
+
+      // Disable the board and let the AI move after a 3-second countdown.
+      disableBoard();
+      messageElement.textContent = "AI is thinking...";
+      startAITimer();
+    }
+
+    // AI move logic:
+    // 1. If the AI can win, take that move.
+    // 2. Else if the player is about to win, block that move.
+    // 3. Else, choose a random empty cell.
+    function aiMove() {
+      let move = null;
+
+      // 1. Check if AI can win immediately.
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === '') {
+          board[i] = 'O'; // simulate AI move
+          if (checkWin('O')) {
+            move = i;
+            board[i] = ''; // revert simulation
+            break;
+          }
+          board[i] = '';
+        }
+      }
+
+      // 2. Block the player's winning move.
+      if (move === null) {
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === '') {
+            board[i] = 'X'; // simulate player's move
+            if (checkWin('X')) {
+              move = i;
+              board[i] = '';
+              break;
+            }
+            board[i] = '';
+          }
+        }
+      }
+
+      // 3. Otherwise, choose a random empty cell.
+      if (move === null) {
+        let emptyIndices = board.map((cell, idx) => cell === '' ? idx : null)
+                                .filter(idx => idx !== null);
+        if (emptyIndices.length > 0) {
+          move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+        }
+      }
+
+      // If a move is available, execute it.
+      if (move !== null) {
+        board[move] = 'O';
+        const cell = boardElement.querySelector(`td[data-index='${move}']`);
+        cell.textContent = 'O';
+        cell.classList.add('disabled');
+
+        if (checkWin('O')) {
+          messageElement.textContent = "AI has won the match!";
+          disableBoard();
+          return;
+        }
+
+        if (checkTie()) {
+          messageElement.textContent = "Match got tied!";
+          disableBoard();
+          return;
+        }
+      }
+      
+      // Return control to the player.
+      messageElement.textContent = "Your Turn!";
+      enableBoard();
+    }
+
+    // Listen for clicks on the board.
+    boardElement.addEventListener('click', function (e) {
+      if (!gameActive) return;
+      const target = e.target;
+      if (target.tagName.toLowerCase() === 'td' && target.textContent === '') {
+        const index = parseInt(target.getAttribute('data-index'), 10);
+        playerMove(index, target);
+      }
+    });
+  </script>
+</body>
+</html>
