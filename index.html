@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - Level Selection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, rgba(0, 21, 51, 1) 0%, rgba(30, 24, 59, 1) 50%, rgba(58, 83, 155, 1) 100%);
+            color: white;
+            overflow: hidden;
+            background-size: cover;
+            position: relative;
+            height: 100vh;
+        }
+
+        /* Stars Animation */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        .header {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-top: 100px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .sub-header {
+            font-size: 1.5em;
+            color: #f39c12;
+            margin-top: 10px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .button {
+            margin: 20px;
+            padding: 20px 40px;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            color: white;
+            border-radius: 12px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background-color: rgba(52, 152, 219, 0.8);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+        }
+
+        #easy {
+            background-color: rgba(39, 174, 96, 0.8); /* Green for easy */
+        }
+
+        #medium {
+            background-color: rgba(241, 196, 15, 0.8); /* Yellow for medium */
+        }
+
+        #hard {
+            background-color: rgba(231, 76, 60, 0.8); /* Red for hard */
+        }
+
+        .button.selected {
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+        }
+
+        #footer {
+            margin-top: 50px;
+            font-size: 1.5em;
+            color: #ecf0f1;
+            text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        #image-container {
+            margin-top: 100px;
+            text-align: center;
+        }
+
+        #image-container img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Create Stars in the Background -->
+    <div class="star" style="top: 20%; left: 10%; animation-duration: 2s;"></div>
+    <div class="star" style="top: 40%; left: 30%; animation-duration: 3s;"></div>
+    <div class="star" style="top: 60%; left: 50%; animation-duration: 4s;"></div>
+    <div class="star" style="top: 80%; left: 70%; animation-duration: 2.5s;"></div>
+    <div class="star" style="top: 50%; left: 80%; animation-duration: 3.5s;"></div>
+    <div class="star" style="top: 30%; left: 90%; animation-duration: 1.8s;"></div>
+
+    <div class="header">SCIENCE EXHIBITION-2081</div>
+    <div class="sub-header">JANAK MODEL SECONDARY SCHOOL</div>
+
+    <div id="footer">SELECT LEVEL FOR TIC-TAC-TOE</div>
+
+    <div class="container">
+        <button class="button" id="easy">Easy Level</button>
+        <button class="button" id="medium">Medium Level</button>
+        <button class="button" id="hard">Hard Level</button>
+    </div>
+    
+    <div class="sub-header">MADE BY SAKSHYAM PAUDEL And DIBYANSHU KANDEL || Class 10 C || BY USING JAVASCRIPT</div>
+
+    <div id="image-container">
+        <img src="https://imagekit.io/tools/asset-public-link?detail=%7B%22name%22%3A%22download%20(4).jpeg%22%2C%22type%22%3A%22image%2Fjpeg%22%2C%22signedurl_expire%22%3A%222028-02-07T13%3A58%3A50.440Z%22%2C%22signedUrl%22%3A%22https%3A%2F%2Fmedia-hosting.imagekit.io%2F%2F4dc2cd486c054a01%2Fdownload%2520(4).jpeg%3FExpires%3D1833544730%26Key-Pair-Id%3DK2ZIVPTIP2VGHC%26Signature%3DRA6lw3MT3jSSMDaAPRHwGYGNNj5og6OkL~s61cVxMN5F5XHiz2GzYpdWek9QPnZRIUR~Cqef0jXS0Lz73UCMszERqt0Ww8s1gUREU~s~Y-wPtg3iXzkjfCWAaKCN9U1cbjBeYjCQCFtopm6zuoTJ9YD9vrLcRMwr84gQ3nvmXarITkqtEIrCqNrUrfgG95uKUL3WaSWWp~mWPNARRUjd9HpzByM9Yx-jFEM1S~7QwmY~9xxVAy9YdBLIy0ZZKahuhfkdZmODFJIajrF-oYZnSzkx2B8Jt~fG~3N-yhChxBQ1CnWPqZyRCzRWuyOs3MVcCrENSTu~lyFLfH8tjmQtjg__%22%7D" alt="science Exhibition"> 
+    </div>
+
+    <script>
+        document.getElementById('easy').addEventListener('click', function() {
+            highlightButton(this);
+            window.location.href = 'easy.html';
+        });
+
+        document.getElementById('medium').addEventListener('click', function() {
+            highlightButton(this);
+            window.location.href = 'medium.html';
+        });
+
+        document.getElementById('hard').addEventListener('click', function() {
+            highlightButton(this);
+            window.location.href = 'hard.html';
+        });
+
+        function highlightButton(selectedButton) {
+            document.querySelectorAll('.button').forEach(button => button.classList.remove('selected'));
+            selectedButton.classList.add('selected');
+        }
+    </script>
+</body>
+</html>
