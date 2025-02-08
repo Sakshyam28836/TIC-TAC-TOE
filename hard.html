@@ -103,23 +103,14 @@
         }
 
         @keyframes popUpGlow {
-            0% {
-                opacity: 0;
-                transform: scale(0);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
         }
-
     </style>
 </head>
 <body>
     <h1>🔥 Hell Tic-Tac-Toe 🔥</h1>
-
     <div id="timer">AI moves in: <span id="countdown">3</span> seconds</div>
-
     <div class="board" id="board">
         <div class="cell" id="0"></div>
         <div class="cell" id="1"></div>
@@ -133,9 +124,7 @@
     </div>
 
     <div id="message"></div>
-
     <div id="schoolMessage">JANAK MODEL SECONDARY SCHOOL || SCIENCE EXHIBITION-2081</div>
-
     <button id="home" onclick="window.location.href='index.html'">🏠 Home</button>
     <button id="restart" onclick="restartGame()">🔄 Restart Game</button>
 
@@ -144,7 +133,6 @@
         const cells = document.querySelectorAll('.cell');
         const timer = document.getElementById('countdown');
         const message = document.getElementById('message');
-        const schoolMessage = document.getElementById('schoolMessage');
         const restartButton = document.getElementById('restart');
 
         let gameOver = false;
@@ -162,7 +150,20 @@
                 cell.innerText = "X";
                 cell.classList.add("taken");
 
-                // After the player move, check if the center is empty
+                if (checkWin("X")) {
+                    message.innerText = "🔥 You Lose! 🔥";
+                    gameOver = true;
+                    disableBoard();
+                    return;
+                }
+
+                if (boardState.every(cell => cell !== "")) {
+                    message.innerText = "😈 Game Got Tied 😈";
+                    gameOver = true;
+                    disableBoard();
+                    return;
+                }
+
                 setTimeout(() => aiMove(), 3000);
                 disableBoard();
                 startCountdown(3);
@@ -171,29 +172,6 @@
 
         function aiMove() {
             if (gameOver) return;
-
-            // Check if the center is empty
-            if (boardState[4] === "") {
-                // AI places its move in the center
-                boardState[4] = "O";
-                cells[4].innerText = "O";
-                cells[4].classList.add("taken");
-
-                if (checkWin("O")) {
-                    message.innerText = "🔥 AI Wins! 🔥";
-                    gameOver = true;
-                    restartButton.style.display = 'block';
-                    return;
-                }
-
-                disableBoard();
-                setTimeout(() => {
-                    enableBoard();
-                }, 500);
-                return;
-            }
-
-            // AI will now make moves to ensure it always wins or forces a draw
             let bestMove = findBestMove(boardState);
             boardState[bestMove] = "O";
             cells[bestMove].innerText = "O";
@@ -202,14 +180,7 @@
             if (checkWin("O")) {
                 message.innerText = "🔥 AI Wins! 🔥";
                 gameOver = true;
-                restartButton.style.display = 'block';
-                return;
-            }
-
-            if (boardState.every(cell => cell !== "")) {
-                message.innerText = "😈 Game Got Tied 😈";
-                gameOver = true;
-                restartButton.style.display = 'block';
+                disableBoard();
                 return;
             }
 
@@ -243,60 +214,38 @@
                 cell.innerText = "";
                 cell.classList.remove("taken");
             });
-            startNewGame();
-        }
-
-        function startNewGame() {
-            // Reset any other UI or states
-            setTimeout(() => {
-                // Allow user to take the first move
-                enableBoard();
-            }, 100);
+            enableBoard();
         }
 
         function findBestMove(board) {
-            let winningCombinations = [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
-            ];
+            if (board[4] === "") return 4; // Take center first
 
-            // Check if AI can win in the next move
             for (let i = 0; i < 9; i++) {
                 if (board[i] === "") {
                     board[i] = "O";
-                    if (checkWin("O")) {
-                        board[i] = "";
-                        return i;
-                    }
+                    if (checkWin("O")) return i;
                     board[i] = "";
                 }
             }
 
-            // Check if player can win and block them
             for (let i = 0; i < 9; i++) {
                 if (board[i] === "") {
                     board[i] = "X";
-                    if (checkWin("X")) {
-                        board[i] = "";
-                        return i;
-                    }
+                    if (checkWin("X")) return i;
                     board[i] = "";
                 }
             }
 
-            // Otherwise, return random position to continue blocking and setting up win
-            for (let i = 0; i < 9; i++) {
-                if (board[i] === "") return i;
-            }
+            const corners = [0, 2, 6, 8].filter(i => board[i] === "");
+            if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
+
+            const sides = [1, 3, 5, 7].filter(i => board[i] === "");
+            return sides.length ? sides[Math.floor(Math.random() * sides.length)] : null;
         }
 
         function checkWin(player) {
-            return [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
-            ].some(combination => combination.every(index => boardState[index] === player));
+            return [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+                .some(combination => combination.every(index => boardState[index] === player));
         }
     </script>
 </body>
